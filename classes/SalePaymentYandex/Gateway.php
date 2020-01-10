@@ -19,13 +19,13 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 				[
 					'name'       => 'shopId',
 					'xtype'      => 'textfield',
-					'fieldLabel' => $t->_('Идентификатор магазина (shopId) *'),
+					'fieldLabel' => $t->_('Идентификатор магазина *'),
 					'allowBlank' => false,
 				],	
 				[
 					'name'       => 'shopSecret',
 					'xtype'      => 'textfield',
-					'fieldLabel' => $t->_('Секретный ключ'),
+					'fieldLabel' => $t->_('Секретный ключ *'),
 					'allowBlank' => false,
 				],                
 				[
