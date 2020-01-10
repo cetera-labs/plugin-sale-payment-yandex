@@ -102,7 +102,6 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 				$items[] = [
                     'description' => $p['name'],
                     'quantity'    => intval($p['quantity']),
-                    'itemCode' => $p['id'],
                     "amount" => array(
                         "value" => $p['price'],
                         "currency" => $this->order->getCurrency()->code
@@ -127,8 +126,8 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
                 'type' => $this->params['paymentType'],
             );
         }
-        
-        print_r($paymentData);
+                
+        print $this->params['shopId'].$this->params['shopSecret'];
         
         $client = new Client();
         $client->setAuth($this->params['shopId'], $this->params['shopSecret']);
