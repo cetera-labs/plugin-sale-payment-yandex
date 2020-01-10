@@ -126,17 +126,25 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
                 'type' => $this->params['paymentType'],
             );
         }
-                
-        print $this->params['shopId'].$this->params['shopSecret'];
         
         $client = new Client();
         $client->setAuth($this->params['shopId'], $this->params['shopSecret']);
-        $payment = $client->createPayment(
+        $response = $client->createPayment(
             $paymentData,
             uniqid('', true)
-        );  
+        );
         
-        print_r($payment);
+        if(isset($response->status) and ($response->status != "canceled") and isset($response->confirmation->confirmation_url) and $response->confirmation->confirmation_url) {
+          
+            $this->saveTransaction($response->id, $response);
+            header('Location: '.$response->confirmation->confirmation_url);
+            die();          
+          
+        }  
+        else {
+            throw new \Exception('Что-то пошло не так');
+        }
+        
         
 	}	
 	
