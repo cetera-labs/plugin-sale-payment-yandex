@@ -11,15 +11,16 @@
         }
     ],
     "require": {
-        "cetera-labs/plugin-sale": "dev-master"
+        "cetera-labs/plugin-sale": "dev-master",
+        "yandex-money/yandex-checkout-sdk-php": "*"
     },
     
     "minimum-stability": "dev",
     
     "autoload": {
         "psr-0": { 
-	    "SalePaymentYandex\\": "classes/"
-	}
+	        "SalePaymentYandex\\": "classes/"
+	    }
     },
 
     "extra": {

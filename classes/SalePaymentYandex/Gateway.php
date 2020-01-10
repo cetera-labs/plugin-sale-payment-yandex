@@ -1,6 +1,8 @@
 <?php
 namespace SalePaymentYandex;
 
+use YandexCheckout\Client;
+
 class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public $SECURITY_TYPE = 'MD5';
@@ -9,28 +11,24 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	{
 		$t = \Cetera\Application::getInstance()->getTranslator();
 		
-		return array(
+		return [
 			'name'        => 'Yandex',
 			'description' => '',
 			'icon'        => '/plugins/sale_payment_yandex/yandex.png',
-			'params' => array(
-				array(
-					'xtype'      => 'displayfield',
-					'value'      => '<div style="text-align: right"><a href="/plugins/sale_payment_yandex/help/index.html" target="_blank">Справка</a></div>'
-				),			
-				array(
+			'params' => [	
+				[
 					'name'       => 'shopId',
 					'xtype'      => 'textfield',
 					'fieldLabel' => $t->_('Идентификатор магазина (shopId) *'),
 					'allowBlank' => false,
-				),	
-				array(
-					'name'       => 'scid',
+				],	
+				[
+					'name'       => 'shopSecret',
 					'xtype'      => 'textfield',
-					'fieldLabel' => $t->_('Идентификатор витрины (scid) *'),
+					'fieldLabel' => $t->_('Секретный ключ'),
 					'allowBlank' => false,
-				),					
-				array(
+				],                
+				[
 					'name'       => 'paymentType',
 					'xtype'      => 'textfield',
 					'fieldLabel' => $t->_('Способ оплаты'),
@@ -38,54 +36,109 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 					'value'      => '',
 					'store'      => [
 						['',  $t->_('выбор на стороне Яндекс.Кассы')],
-						['PC',$t->_('оплата из кошелька в Яндекс.Деньгах')],
-						['AC',$t->_('оплата с произвольной банковской карты')],
+						['yandex_money',$t->_('оплата из кошелька в Яндекс.Деньгах')],
+						['bank_card',$t->_('оплата с произвольной банковской карты')],
 					],
-				),
-				array(
-					'name'       => 'shop_password',
-					'xtype'      => 'textfield',
-					'fieldLabel' => $t->_('Пароль магазина'),
-					'allowBlank' => true,
-				),		
-				array(
-					'name'       => 'test',
+				],
+				[
+					'name'       => 'orderBundle',
 					'xtype'      => 'checkbox',
-					'fieldLabel'   => $t->_('Режим отладки'),
-				),
-				/*
-				array(
-					'xtype'      => 'displayfield',
-					'fieldLabel' => $t->_('URL-адрес для IPN уведомлений'),
-					'value'      => 'http://'.$_SERVER['HTTP_HOST'].'/plugins/sale_payment_paypal/ipn.php'
-				),	
-				*/				
-				
-			)			
-		);
+					'fieldLabel' => 'Передача корзины товаров (кассовый чек 54-ФЗ)',
+				],
+				[
+					'name'       => 'tax_system_code',
+					'xtype'      => 'combobox',
+					'fieldLabel' => 'Система налогообложения',
+					'value'      => 0,
+					'store'      => [
+						[1, 'общая СН'],
+						[2, 'упрощенная СН (доходы)'],
+						[3, 'упрощенная СН (доходы минус расходы)'],
+						[4, 'единый налог на вмененный доход'],
+						[5, 'единый сельскохозяйственный налог'],
+						[6, 'патентная СН'],
+					],
+				], 
+				[
+					'name'       => 'vat_code',
+					'xtype'      => 'combobox',
+					'fieldLabel' => 'Ставка НДС для товаров',
+					'value'      => 0,
+					'store'      => [
+						[1, 'без НДС'],
+						[2, 'НДС по ставке 0%'],
+						[3, 'НДС чека по ставке 10%'],
+						[4, 'НДС чека по ставке 20%'],
+						[5, 'НДС чека по расчетной ставке 10/110'],
+                        [6, 'НДС чека по расчётной ставке 20/120'],
+					],
+				],                
+			]			
+		];
 	}
 	
 	public function pay( $return = '' )
 	{
-		$payNowUrl = $this->params['test']?'https://demomoney.yandex.ru/eshop.xml':'https://money.yandex.ru/eshop.xml';
-		$shopId = $this->params['shopId'];
-		$scid = $this->params['scid'];
-                $paymentType = $this->params['paymentType'];
-		$sum = $this->order->getTotal();
-		$customerNumber = $this->order->user->email;
-		$orderNumber = $this->order->id;
-		
-		print <<<END
-			<form action="$payNowUrl" method="post" name="pay">
-				<input name="shopId" value="$shopId" type="hidden"/>
-				<input name="scid" value="$scid" type="hidden"/>
-				<input name="sum" value="$sum" type="hidden">
-				<input name="paymentType" value="$paymentType" type="hidden">
-				<input name="customerNumber" value="$customerNumber" type="hidden"/>
-				<input name="orderNumber" value="$orderNumber" type="hidden"/>
-			</form>	
-			<script>pay.submit();</script>
-END;
+        if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
+        
+        $paymentData = array(
+            'amount' => array(
+                'value' => $this->order->getTotal(),
+                'currency' => 'RUB',
+            ),              
+            'confirmation' => array(
+                'type' => 'redirect',
+                'return_url' => $return,
+            ),
+            'capture' => true,
+            'description' => 'Заказ №'.$this->order->id,            
+        );
+        
+        if ($this->params['orderBundle']) {
+			$items = [];
+			
+            $i = 1;
+			foreach ($this->order->getProducts() as $p) {
+				$items[] = [
+                    'description' => $p['name'],
+                    'quantity'    => intval($p['quantity']),
+                    'itemCode' => $p['id'],
+                    "amount" => array(
+                        "value" => $p['price'],
+                        "currency" => $this->order->getCurrency()->code
+                    ),   
+                    "vat_code" => $this->params['vat_code'],
+				];
+			}
+
+            $paymentData['receipt'] = [
+                "customer" => array(
+                    "full_name" => $this->order->getName(),
+                    "phone" => $this->order->getPhone(),
+                    "email" => $this->order->getEmail(),
+                ),
+               "tax_system_code" => $this->params['tax_system_code'],
+                "items" => $items
+            ];
+        }        
+
+        if ($this->params['paymentType']) {
+            $paymentData['payment_method_data'] = array(
+                'type' => $this->params['paymentType'],
+            );
+        }
+        
+        print_r($paymentData);
+        
+        $client = new Client();
+        $client->setAuth($this->params['shopId'], $this->params['shopSecret']);
+        $payment = $client->createPayment(
+            $paymentData,
+            uniqid('', true)
+        );  
+        
+        print_r($payment);
+        
 	}	
 	
 }
