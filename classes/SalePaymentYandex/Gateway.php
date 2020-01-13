@@ -81,18 +81,21 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	{
         if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
         
-        $paymentData = array(
-            'amount' => array(
+        $paymentData = [
+            'amount' => [
                 'value' => $this->order->getTotal(),
                 'currency' => 'RUB',
-            ),              
-            'confirmation' => array(
+            ],              
+            'confirmation' => [
                 'type' => 'redirect',
                 'return_url' => $return,
-            ),
+            ],
             'capture' => true,
-            'description' => 'Заказ №'.$this->order->id,            
-        );
+            'description' => 'Заказ №'.$this->order->id,    
+            'metadata' => [
+                'order_id' => $this->order->id,
+            ]           
+        ];
         
         if ($this->params['orderBundle']) {
 			$items = [];
@@ -102,10 +105,10 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 				$items[] = [
                     'description' => $p['name'],
                     'quantity'    => intval($p['quantity']),
-                    "amount" => array(
+                    "amount" => [
                         "value" => $p['price'],
                         "currency" => $this->order->getCurrency()->code
-                    ),   
+                    ],   
                     "vat_code" => $this->params['vat_code'],
 				];
 			}
@@ -122,9 +125,9 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         }        
 
         if ($this->params['paymentType']) {
-            $paymentData['payment_method_data'] = array(
+            $paymentData['payment_method_data'] = [
                 'type' => $this->params['paymentType'],
-            );
+            ];
         }
         
         $client = new Client();
