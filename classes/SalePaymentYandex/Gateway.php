@@ -116,7 +116,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
             $paymentData['receipt'] = [
                 "customer" => array(
                     "full_name" => $this->order->getName(),
-                    "phone" => $this->order->getPhone(),
+                    "phone" => preg_replace('/\D/','',$this->order->getPhone()),
                     "email" => $this->order->getEmail(),
                 ),
                "tax_system_code" => $this->params['tax_system_code'],
