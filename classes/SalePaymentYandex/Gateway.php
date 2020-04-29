@@ -212,8 +212,17 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 				"phone" => preg_replace('/\D/','',$this->order->getPhone()),
 				"email" => $this->order->getEmail(),
 			),
-		   "tax_system_code" => $this->params['tax_system_code'],
-			"items" => $items
+		    "tax_system_code" => $this->params['tax_system_code'],
+		    "items" => $items,
+			'settlements' => [
+				[
+				    'type' => 'prepayment',
+				    'amount' => [
+						'value' => $this->order->getTotal(),
+						'currency' => 'RUB',
+				    ]
+				]
+			]		   
 		];
 
 		return $receipt;
