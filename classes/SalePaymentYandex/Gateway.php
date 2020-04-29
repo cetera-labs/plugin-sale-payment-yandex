@@ -122,8 +122,6 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public function pay( $return = '' )
 	{
-        if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
-        
         $paymentData = $this->getPaymentData();
         
         $client = new Client();
@@ -149,6 +147,8 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public function getPaymentData()
 	{
+		if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
+		
         $paymentData = [
             'amount' => [
                 'value' => $this->order->getTotal(),
