@@ -33,8 +33,6 @@ try {
         throw new \Exception('Order check failed');
     } 
 
-	$order->paymentSuccess();
-
 	if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
 		$receipt = $gateway->getReciept();
 		$receipt['payment_id'] = $payment->id;
@@ -46,6 +44,8 @@ try {
 			uniqid('', true)
 		);		
 	}
+	
+	$order->paymentSuccess();
     
 	header("HTTP/1.1 200 OK");
 	print 'OK';		    
