@@ -11,7 +11,7 @@ if (class_exists("\Sale\Payment")) {
     }
 }
 
-// Подключаем каталог с переводами модуля
+// РџРѕРґРєР»СЋС‡Р°РµРј РєР°С‚Р°Р»РѕРі СЃ РїРµСЂРµРІРѕРґР°РјРё РјРѕРґСѓР»СЏ
 $t = $this->getTranslator();
 $t->addTranslation(__DIR__.'/lang');
 
@@ -20,14 +20,14 @@ if ($this->getBo()) {
     $this->getBo()->addEditor(array(
         'id'    => EDITOR_TEXT_YANDEX_TAX_SYSTEM,
         'alias' => 'editor_text_yandex_tax_system',
-        'name'  => $t->_('Редактор СНО')
+        'name'  => $t->_('Р РµРґР°РєС‚РѕСЂ РЎРќРћ')
     ));
 
     $this->getBo()->addPseudoField(array(
         'id'       => PSEUDO_FIELD_YANDEX_TAX_SYSTEM,
         'original' => FIELD_TEXT,
         'len'      => 1,
-        'name'     => $t->_('Yandex СНО')
+        'name'     => $t->_('Yandex РЎРќРћ')
     ));
 
     $this->getBo()->addFieldEditor(PSEUDO_FIELD_YANDEX_TAX_SYSTEM, EDITOR_TEXT_YANDEX_TAX_SYSTEM);
@@ -35,7 +35,7 @@ if ($this->getBo()) {
     $this->getBo()->addEditor(array(
         'id'    => EDITOR_TEXT_YANDEX_TAX,
         'alias' => 'editor_text_yandex_tax',
-        'name'  => $t->_('Редактор НДС')
+        'name'  => $t->_('Р РµРґР°РєС‚РѕСЂ РќР”РЎ')
     ));
 
     $this->getBo()->addPseudoField(array(
@@ -61,7 +61,7 @@ function editor_text_yandex_tax_system_draw($field_def, $fieldvalue)
 		displayField: 'value',
 		store: new Ext.data.SimpleStore({
 			fields: ['code', 'value'],
-			data : [['1', _('общая СН')], ['2', _('упрощенная СН (доходы)')], ['3', _('упрощенная СН (доходы минус расходы)')], ['4', _('единый налог на вмененный доход')], ['5', _('единый сельскохозяйственный налог')], ['6', _('патентная СН')],]
+			data : [['1', _('РѕР±С‰Р°СЏ РЎРќ')], ['2', _('СѓРїСЂРѕС‰РµРЅРЅР°СЏ РЎРќ (РґРѕС…РѕРґС‹)')], ['3', _('СѓРїСЂРѕС‰РµРЅРЅР°СЏ РЎРќ (РґРѕС…РѕРґС‹ РјРёРЅСѓСЃ СЂР°СЃС…РѕРґС‹)')], ['4', _('РµРґРёРЅС‹Р№ РЅР°Р»РѕРі РЅР° РІРјРµРЅРµРЅРЅС‹Р№ РґРѕС…РѕРґ')], ['5', _('РµРґРёРЅС‹Р№ СЃРµР»СЊСЃРєРѕС…РѕР·СЏР№СЃС‚РІРµРЅРЅС‹Р№ РЅР°Р»РѕРі')], ['6', _('РїР°С‚РµРЅС‚РЅР°СЏ РЎРќ')],]
 		}),
 		defaultValue: '1'
     })
@@ -82,7 +82,7 @@ function editor_text_yandex_tax_draw($field_def, $fieldvalue)
 		displayField: 'value',
 		store: new Ext.data.SimpleStore({
 			fields: ['code', 'value'],
-			data : [['1', _('без НДС')], ['2', _('НДС по ставке 0%')], ['3', _('НДС чека по ставке 10%')], ['4', _('НДС чека по ставке 18%')], ['5', _('НДС чека по расчетной ставке 10/110')], ['6', _('НДС чека по расчетной ставке 20/120')],]
+			data : [['1', _('Р±РµР· РќР”РЎ')], ['2', _('РќР”РЎ РїРѕ СЃС‚Р°РІРєРµ 0%')], ['3', _('РќР”РЎ С‡РµРєР° РїРѕ СЃС‚Р°РІРєРµ 10%')], ['4', _('РќР”РЎ С‡РµРєР° РїРѕ СЃС‚Р°РІРєРµ 18%')], ['5', _('РќР”РЎ С‡РµРєР° РїРѕ СЂР°СЃС‡РµС‚РЅРѕР№ СЃС‚Р°РІРєРµ 10/110')], ['6', _('РќР”РЎ С‡РµРєР° РїРѕ СЂР°СЃС‡РµС‚РЅРѕР№ СЃС‚Р°РІРєРµ 20/120')],]
 		}),
 		defaultValue: '1'
     })

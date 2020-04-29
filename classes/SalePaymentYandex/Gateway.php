@@ -152,7 +152,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         $paymentData = [
             'amount' => [
                 'value' => $this->order->getTotal(),
-                'currency' => 'RUB',
+                'currency' => $this->order->getCurrency()->code,
             ],              
             'confirmation' => [
                 'type' => 'redirect',
@@ -219,7 +219,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 				    'type' => 'prepayment',
 				    'amount' => [
 						'value' => $this->order->getTotal(),
-						'currency' => 'RUB',
+						'currency' => $this->order->getCurrency()->code,
 				    ]
 				]
 			]		   

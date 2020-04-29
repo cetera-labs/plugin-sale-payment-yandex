@@ -39,7 +39,7 @@ try {
 		
 		$client = new Client();
 		$client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
-		$response = $client->createReceipt(
+		$resp = $client->createReceipt(
 			$receipt,
 			uniqid('', true)
 		);		
