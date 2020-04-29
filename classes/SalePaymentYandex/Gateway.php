@@ -81,54 +81,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	{
         if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
         
-        $paymentData = [
-            'amount' => [
-                'value' => $this->order->getTotal(),
-                'currency' => 'RUB',
-            ],              
-            'confirmation' => [
-                'type' => 'redirect',
-                'return_url' => $return,
-            ],
-            'capture' => true,
-            'description' => 'Заказ №'.$this->order->id,    
-            'metadata' => [
-                'order_id' => $this->order->id,
-            ]           
-        ];
-        
-        if ($this->params['orderBundle']) {
-			$items = [];
-			
-            $i = 1;
-			foreach ($this->order->getProducts() as $p) {
-				$items[] = [
-                    'description' => $p['name'],
-                    'quantity'    => intval($p['quantity']),
-                    "amount" => [
-                        "value" => $p['price'],
-                        "currency" => $this->order->getCurrency()->code
-                    ],   
-                    "vat_code" => $this->params['vat_code'],
-				];
-			}
-
-            $paymentData['receipt'] = [
-                "customer" => array(
-                    "full_name" => $this->order->getName(),
-                    "phone" => preg_replace('/\D/','',$this->order->getPhone()),
-                    "email" => $this->order->getEmail(),
-                ),
-               "tax_system_code" => $this->params['tax_system_code'],
-                "items" => $items
-            ];
-        }        
-
-        if ($this->params['paymentType']) {
-            $paymentData['payment_method_data'] = [
-                'type' => $this->params['paymentType'],
-            ];
-        }
+        $paymentData = $this->getPaymentData();
         
         $client = new Client();
         $client->setAuth($this->params['shopId'], $this->params['shopSecret']);
@@ -151,4 +104,64 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         
 	}	
 	
+	public function getPaymentData()
+	{
+        $paymentData = [
+            'amount' => [
+                'value' => $this->order->getTotal(),
+                'currency' => 'RUB',
+            ],              
+            'confirmation' => [
+                'type' => 'redirect',
+                'return_url' => $return,
+            ],
+            'capture' => true,
+            'description' => 'Заказ №'.$this->order->id,    
+            'metadata' => [
+                'order_id' => $this->order->id,
+            ]           
+        ];
+        
+        if ($this->params['orderBundle']) {
+            $paymentData['receipt'] = $this->getReciept();
+        }        
+
+        if ($this->params['paymentType']) {
+            $paymentData['payment_method_data'] = [
+                'type' => $this->params['paymentType'],
+            ];
+        }
+
+		return $paymentData;
+	}
+	
+	public function getReciept()
+	{
+		$items = [];
+		
+		$i = 1;
+		foreach ($this->order->getProducts() as $p) {
+			$items[] = [
+				'description' => $p['name'],
+				'quantity'    => intval($p['quantity']),
+				"amount" => [
+					"value" => $p['price'],
+					"currency" => $this->order->getCurrency()->code
+				],   
+				"vat_code" => $this->params['vat_code'],
+			];
+		}
+
+		$receipt = [
+			"customer" => array(
+				"full_name" => $this->order->getName(),
+				"phone" => preg_replace('/\D/','',$this->order->getPhone()),
+				"email" => $this->order->getEmail(),
+			),
+		   "tax_system_code" => $this->params['tax_system_code'],
+			"items" => $items
+		];
+
+		return $receipt;
+	}
 }
