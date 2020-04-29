@@ -46,6 +46,11 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 					'fieldLabel' => 'Передача корзины товаров (кассовый чек 54-ФЗ)',
 				],
 				[
+					'name'       => 'receiptAfterPayment',
+					'xtype'      => 'checkbox',
+					'fieldLabel' => 'Cценарий "Сначала платеж, потом чек"',
+				],				
+				[
 					'name'       => 'tax_system_code',
 					'xtype'      => 'combobox',
 					'fieldLabel' => 'Система налогообложения',
@@ -72,7 +77,45 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 						[5, 'НДС чека по расчетной ставке 10/110'],
                         [6, 'НДС чека по расчётной ставке 20/120'],
 					],
-				],                
+				], 
+                [
+                    'name' => 'paymentSubjectType',
+                    'fieldLabel' => $t->_('Признак предмета расчёта'),
+                    'xtype' => 'combobox',
+                    'value' => '',
+                    'store' => [
+                        ['commodity', $t->_('Товар')],
+                        ['excise', $t->_('Подакцизный товар')],
+                        ['job', $t->_('Работа')],
+                        ['service', $t->_('Услуга')],
+                        ['gambling_bet', $t->_('Ставка в азартной игре')],
+                        ['gambling_prize', $t->_('Выигрыш в азартной игре')],
+                        ['lottery', $t->_('Лотерейный билет')],
+                        ['lottery_prize', $t->_('Выигрыш в лотерею')],
+                        ['intellectual_activity', $t->_('Результаты интеллектуальной деятельности')],
+                        ['payment', $t->_('Платеж')],
+                        ['agent_commission', $t->_('Агентское вознаграждение')],
+                        ['composite', $t->_('Несколько вариантов')],
+                        ['another', $t->_('Другое')],
+                    ],
+                    'allowBlank' => false,
+                ],
+                [
+                    'name' => 'paymentMethodType',
+                    'fieldLabel' => $t->_('Признак способа расчёта'),
+                    'xtype' => 'combobox',
+                    'value' => '',
+                    'store' => [
+                        ['full_prepayment', $t->_('Полная предоплата')],
+                        ['partial_prepayment', $t->_('Частичная предоплата')],
+                        ['advance', $t->_('Аванс')],
+                        ['full_payment', $t->_('Полный расчет')],
+                        ['partial_payment', $t->_(' частичный расчет и кредит')],
+                        ['credit', $t->_('Кредит')],
+                        ['credit_payment', $t->_('Выплата по кредиту')],
+                    ],
+                    'allowBlank' => false,
+                ],				
 			]			
 		];
 	}
@@ -122,7 +165,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
             ]           
         ];
         
-        if ($this->params['orderBundle']) {
+        if ($this->params['orderBundle'] && !$this->params['receiptAfterPayment']) {
             $paymentData['receipt'] = $this->getReciept();
         }        
 
@@ -135,7 +178,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 		return $paymentData;
 	}
 	
-	public function getReciept()
+	public function getItems()
 	{
 		$items = [];
 		
@@ -149,10 +192,21 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 					"currency" => $this->order->getCurrency()->code
 				],   
 				"vat_code" => $this->params['vat_code'],
+				"payment_subject" => $this->params['paymentSubjectType'],
+				"payment_mode" => $this->params['paymentMethodType'],
 			];
 		}
 
+		return $items;		
+	}		
+	
+	public function getReciept()
+	{
+		$items = $this->getItems();
+
 		$receipt = [
+			'send' => true,
+			'type' => 'payment',
 			"customer" => array(
 				"full_name" => $this->order->getName(),
 				"phone" => preg_replace('/\D/','',$this->order->getPhone()),

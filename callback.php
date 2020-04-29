@@ -2,6 +2,7 @@
 use YandexCheckout\Model\Notification\NotificationSucceeded;
 use YandexCheckout\Model\Notification\NotificationWaitingForCapture;
 use YandexCheckout\Model\NotificationEventType;
+use YandexCheckout\Client;
 
 $application->connectDb();
 $application->initSession();
@@ -32,7 +33,21 @@ try {
         throw new \Exception('Order check failed');
     } 
 
-    $order->paymentSuccess();
+	if ($payment->status == 'succeeded') {
+		$order->paymentSuccess();
+	
+		if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
+			$receipt = $gateway->getReciept();
+			$receipt['payment_id'] = $payment->id;
+			
+			$client = new Client();
+			$client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
+			$response = $client->createReceipt(
+				$receipt,
+				uniqid('', true)
+			);		
+		}
+	}
     
 	header("HTTP/1.1 200 OK");
 	print 'OK';		    
