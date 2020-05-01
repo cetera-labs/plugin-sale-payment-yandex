@@ -216,7 +216,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 		    "items" => $items,
 			'settlements' => [
 				[
-				    'type' => 'prepayment',
+				    'type' => 'cashless',
 				    'amount' => [
 						'value' => $this->order->getTotal(),
 						'currency' => $this->order->getCurrency()->code,
