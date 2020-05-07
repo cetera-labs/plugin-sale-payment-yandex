@@ -42,7 +42,9 @@ try {
 		$resp = $client->createReceipt(
 			$receipt,
 			uniqid('', true)
-		);		
+		);
+
+		file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
 	}
 	
 	$order->paymentSuccess();
@@ -57,5 +59,3 @@ catch (\Exception $e) {
 	print $e->getMessage();
 	
 }
-
-//file_put_contents(__DIR__.'/log'.time().'.txt', $source);
