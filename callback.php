@@ -10,7 +10,7 @@ $application->initPlugins();
 try {
     
     $source = file_get_contents('php://input');
-	file_put_contents(__DIR__.'/log_source'.time().'.txt', $source);
+	//file_put_contents(__DIR__.'/log_source'.time().'.txt', $source);
 	
     $requestBody = json_decode($source, true);
         
@@ -59,6 +59,6 @@ catch (\Exception $e) {
 	header("HTTP/1.1 500 ".$e->getMessage());
 	print $e->getMessage();
 	
-		file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage());
+	file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage());
 	
 }
