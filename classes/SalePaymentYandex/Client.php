@@ -1,7 +1,7 @@
 <?php
 namespace SalePaymentYandex;
 
-use YandexCheckout\Client\BaseClient;
+use YandexCheckout\Client\Client;
 use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Common\Exceptions\AuthorizeException;
 use YandexCheckout\Common\Exceptions\BadApiRequestException;
