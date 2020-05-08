@@ -36,7 +36,7 @@ try {
 		$receipt = $gateway->getReciept();
 		$receipt['payment_id'] = $payment->id;
 		
-		$client = new Client();
+		$client = new \SalePaymentYandex\Client();
 		$client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
 		$resp = $client->createReceiptNew(
 			$receipt,
