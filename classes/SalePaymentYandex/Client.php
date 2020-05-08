@@ -1,7 +1,6 @@
 <?php
 namespace SalePaymentYandex;
 
-use YandexCheckout\Client\Client;
 use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Common\Exceptions\AuthorizeException;
 use YandexCheckout\Common\Exceptions\BadApiRequestException;
@@ -53,7 +52,7 @@ use YandexCheckout\Request\Refunds\RefundsRequestSerializer;
 use YandexCheckout\Request\Refunds\RefundsResponse;
 use YandexCheckout\Request\Webhook\WebhookListResponse;
 
-class Client extends  YandexCheckout\Client {
+class Client extends  \YandexCheckout\Client {
 
     public function createReceiptNew($receipt, $idempotenceKey = null)
     {
