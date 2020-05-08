@@ -2,7 +2,6 @@
 use YandexCheckout\Model\Notification\NotificationSucceeded;
 use YandexCheckout\Model\Notification\NotificationWaitingForCapture;
 use YandexCheckout\Model\NotificationEventType;
-use YandexCheckout\Client;
 
 $application->connectDb();
 $application->initSession();
@@ -39,7 +38,7 @@ try {
 		
 		$client = new Client();
 		$client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
-		$resp = $client->createReceipt(
+		$resp = $client->createReceiptNew(
 			$receipt,
 			uniqid('', true)
 		);
