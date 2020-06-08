@@ -4,8 +4,6 @@ namespace SalePaymentYandex;
 use YandexCheckout\Client;
 
 class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
-	
-	public $SECURITY_TYPE = 'MD5';
 		
 	public static function getInfo()
 	{
@@ -14,7 +12,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 		return [
 			'name'        => 'Yandex',
 			'description' => '',
-			'icon'        => '/plugins/sale_payment_yandex/yandex.png',
+			'icon'        => '/plugins/sale-payment-yandex/images/yandex.png',
 			'params' => [	
 				[
 					'name'       => 'shopId',
@@ -122,7 +120,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public function pay( $return = '' )
 	{
-        $paymentData = $this->getPaymentData();
+        $paymentData = $this->getPaymentData( $return );
         
         $client = new Client();
         $client->setAuth($this->params['shopId'], $this->params['shopSecret']);
@@ -145,7 +143,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         
 	}	
 	
-	public function getPaymentData()
+	public function getPaymentData( $return = '' )
 	{
 		if (!$return) $return = \Cetera\Application::getInstance()->getServer()->getFullUrl();
 		
