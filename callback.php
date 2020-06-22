@@ -35,15 +35,24 @@ try {
     } 
 
 	if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
-		$receipt = $gateway->getReciept();
-		$receipt['payment_id'] = $payment->id;
-		
-		$client = new \SalePaymentYandex\Client();
-		$client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
-		$resp = $client->createReceiptNew(
-			$receipt,
-			uniqid('', true)
-		);
+        
+        $resp = $client->getReceipts([
+            'payment_id' => $payment->id,
+        ]);
+
+        if (count($resp->getItems()) == 0) {
+        
+            $receipt = $gateway->getReciept();
+            $receipt['payment_id'] = $payment->id;
+            
+            $client = new \SalePaymentYandex\Client();
+            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
+            $resp = $client->createReceiptNew(
+                $receipt,
+                uniqid('', true)
+            );
+        
+        }
 
 		//file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
 	}
