@@ -36,6 +36,9 @@ try {
 
 	if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
         
+        $client = new \SalePaymentYandex\Client();
+        $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
+        
         $resp = $client->getReceipts([
             'payment_id' => $payment->id,
         ]);
@@ -45,8 +48,6 @@ try {
             $receipt = $gateway->getReciept();
             $receipt['payment_id'] = $payment->id;
             
-            $client = new \SalePaymentYandex\Client();
-            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);
             $resp = $client->createReceiptNew(
                 $receipt,
                 uniqid('', true)
