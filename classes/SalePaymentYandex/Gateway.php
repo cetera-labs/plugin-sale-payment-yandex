@@ -202,14 +202,22 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	{
 		$items = $this->getItems();
 
+        $customer = [
+            "full_name" => $this->order->getName()
+        ];
+        
+        if ($this->order->getEmail()) {
+            $customer['email'] = $this->order->getEmail();
+        }
+        $phone = preg_replace('/\D/','',$this->order->getPhone());
+        if ($phone) {
+            $customer['phone'] = $phone;
+        }
+
 		$receipt = [
 			'send' => true,
 			'type' => 'payment',
-			"customer" => array(
-				"full_name" => $this->order->getName(),
-				"phone" => preg_replace('/\D/','',$this->order->getPhone()),
-				"email" => $this->order->getEmail(),
-			),
+			"customer" => $customer,
 		    "tax_system_code" => $this->params['tax_system_code'],
 		    "items" => $items,
 			'settlements' => [
