@@ -11,7 +11,7 @@ $application->initPlugins();
 try {
     
     $source = file_get_contents('php://input');
-	//file_put_contents(__DIR__.'/log_source'.time().'.txt', $source);
+	file_put_contents(__DIR__.'/log_source'.time().'.txt', $source);
 	
     $requestBody = json_decode($source, true);
         
@@ -54,7 +54,7 @@ try {
             
             }
 
-            //file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
+            //file_put_contents(__DIR__.'/log_payment'.time().'.txt', var_export($receipt, true));
         }
 
         $order->paymentSuccess();
@@ -83,7 +83,7 @@ try {
                 uniqid('', true)
             );
 
-            //file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
+            file_put_contents(__DIR__.'/log_refund'.time().'.txt', var_export($receipt, true));
         }        
         
         $order->setPaid(\Sale\Order::PAY_REFUND)->save();
