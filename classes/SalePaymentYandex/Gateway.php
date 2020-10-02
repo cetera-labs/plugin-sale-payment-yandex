@@ -198,7 +198,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 		return $items;		
 	}		
 	
-	public function getReciept($type = 'payment')
+	public function getReciept()
 	{
 		$items = $this->getItems();
 
@@ -216,7 +216,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 
 		$receipt = [
 			'send' => true,
-			'type' => $type,
+			'type' => 'payment',
 			"customer" => $customer,
 		    "tax_system_code" => $this->params['tax_system_code'],
 		    "items" => $items,
