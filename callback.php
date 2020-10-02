@@ -75,8 +75,9 @@ try {
             $client = new \SalePaymentYandex\Client();
             $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
                         
-            $receipt = $gateway->getReciept('refund');
+            $receipt = $gateway->getReciept();
             $receipt['refund_id'] = $refund->id;
+            $receipt['type'] = 'refund';
             
             $resp = $client->createReceiptNew(
                 $receipt,
