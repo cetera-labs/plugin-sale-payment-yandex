@@ -10,14 +10,15 @@ $application->initPlugins();
 
 try {
     
-    $source = file_get_contents('php://input');
-	file_put_contents(__DIR__.'/log_source'.time().'.txt', $source);
-	
+    $source = file_get_contents('php://input');	
     $requestBody = json_decode($source, true);
         
     if ($requestBody['event'] === NotificationEventType::PAYMENT_SUCCEEDED) {
         
         // успешный платеж
+        
+        //file_put_contents(__DIR__.'/log_payment_source'.time().'.txt', $source);
+        
         $notification = new NotificationSucceeded($requestBody);
         $payment = $notification->getObject();  
 
@@ -54,7 +55,7 @@ try {
             
             }
 
-            //file_put_contents(__DIR__.'/log_payment'.time().'.txt', var_export($receipt, true));
+            //file_put_contents(__DIR__.'/log_payment_receipt'.time().'.txt', var_export($receipt, true));
         }
 
         $order->paymentSuccess();
@@ -63,6 +64,9 @@ try {
     elseif ($requestBody['event'] === NotificationEventType::REFUND_SUCCEEDED) {
         
         // успешный возврат
+        
+        file_put_contents(__DIR__.'/log_refund_source'.time().'.txt', $source);
+        
         $notification = new NotificationRefundSucceeded($requestBody);
         $refund = $notification->getObject();
         
@@ -84,7 +88,7 @@ try {
                 uniqid('', true)
             );
 
-            file_put_contents(__DIR__.'/log_refund'.time().'.txt', var_export($receipt, true));
+            file_put_contents(__DIR__.'/log_refund_receipt'.time().'.txt', var_export($receipt, true));
         }        
         
         $order->setPaid(\Sale\Order::PAY_REFUND)->save();
