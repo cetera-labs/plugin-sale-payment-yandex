@@ -1,5 +1,6 @@
 <?php
 use YandexCheckout\Model\Notification\NotificationSucceeded;
+use YandexCheckout\Model\Notification\NotificationRefundSucceeded;
 use YandexCheckout\Model\Notification\NotificationWaitingForCapture;
 use YandexCheckout\Model\NotificationEventType;
 
@@ -15,50 +16,83 @@ try {
     $requestBody = json_decode($source, true);
         
     if ($requestBody['event'] === NotificationEventType::PAYMENT_SUCCEEDED) {
+        
+        // успешный платеж
         $notification = new NotificationSucceeded($requestBody);
-        $payment = $notification->getObject();        
+        $payment = $notification->getObject();  
+
+        if (!isset( $payment->metadata['order_id'] )) {
+            throw new \Exception('order_id not provided in request body');
+        }    
+        
+        $order = \Sale\Order::getById( $payment->metadata['order_id'] );
+        $gateway = $order->getPaymentGateway();
+        
+        $oid = $gateway->getOrderByTransaction( $payment->id );
+        if ($oid != $order->id) {
+            throw new \Exception('Order check failed');
+        } 
+
+        if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
+            
+            $client = new \SalePaymentYandex\Client();
+            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
+            
+            $resp = $client->getReceipts([
+                'payment_id' => $payment->id,
+            ]);
+
+            if (count($resp->getItems()) == 0) {
+            
+                $receipt = $gateway->getReciept();
+                $receipt['payment_id'] = $payment->id;
+                
+                $resp = $client->createReceiptNew(
+                    $receipt,
+                    uniqid('', true)
+                );
+            
+            }
+
+            //file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
+        }
+
+        $order->paymentSuccess();
+        
     }
-    else {
-        throw new \Exception('Event not permitted');
-    }  
-
-    if (!isset( $payment->metadata['order_id'] )) {
-        throw new \Exception('order_id not provided in request body');
-    }    
-    
-	$order = \Sale\Order::getById( $payment->metadata['order_id'] );
-	$gateway = $order->getPaymentGateway();
-    
-    $oid = $gateway->getOrderByTransaction( $payment->id );
-    if ($oid != $order->id) {
-        throw new \Exception('Order check failed');
-    } 
-
-	if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
+    elseif ($requestBody['event'] === NotificationEventType::REFUND_SUCCEEDED) {
         
-        $client = new \SalePaymentYandex\Client();
-        $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
+        // успешный возврат
+        $notification = new NotificationRefundSucceeded($requestBody);
+        $refund = $notification->getObject();
         
-        $resp = $client->getReceipts([
-            'payment_id' => $payment->id,
-        ]);
-
-        if (count($resp->getItems()) == 0) {
+        $oid = $gateway->getOrderByTransaction( $refund->getPaymentId() );
+        $order = \Sale\Order::getById( $oid );
+        $gateway = $order->getPaymentGateway();
         
-            $receipt = $gateway->getReciept();
-            $receipt['payment_id'] = $payment->id;
+        if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
+            
+            $client = new \SalePaymentYandex\Client();
+            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
+                        
+            $receipt = $gateway->getReciept('refund');
+            $receipt['refund_id'] = $refund->id;
             
             $resp = $client->createReceiptNew(
                 $receipt,
                 uniqid('', true)
             );
-        
-        }
 
-		//file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
-	}
-	
-	$order->paymentSuccess();
+            //file_put_contents(__DIR__.'/log'.time().'.txt', var_export($receipt, true));
+        }        
+        
+        $order->setPaid(\Sale\Order::PAY_REFUND)->save();
+        
+    }
+    else {
+        throw new \Exception('Event not permitted');
+    }  
+
     
 	header("HTTP/1.1 200 OK");
 	print 'OK';		    
