@@ -113,6 +113,6 @@ catch (\Exception $e) {
 	header("HTTP/1.1 500 ".$e->getMessage());
 	print $e->getMessage();
 	
-	file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage()."\n\n\n".$source);
+	file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage()."\n\n\n".'In file '.$e->getFile().' on line: '.$e->getLine()."\n\nStack trace:\n".$exception->getTraceAsString()."\n\n\n".$source);
 	
 }
