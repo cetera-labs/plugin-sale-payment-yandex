@@ -65,12 +65,17 @@ try {
         
         // успешный возврат
         
-        //file_put_contents(__DIR__.'/log_refund_source'.time().'.txt', $source);
+        file_put_contents(__DIR__.'/log_refund_source'.time().'.txt', $source);
         
         $notification = new NotificationRefundSucceeded($requestBody);
         $refund = $notification->getObject();
         
         $oid = $application->getDbConnection()->fetchColumn('SELECT order_id FROM sale_payment_transactions WHERE transaction_id=?',[$refund->getPaymentId()]);
+        
+        if (!$oid) {
+            throw new \Exception('Transaction '.$refund->getPaymentId().' not found');
+        }
+        
         $order = \Sale\Order::getById( $oid );
         $gateway = $order->getPaymentGateway();
         
@@ -108,6 +113,6 @@ catch (\Exception $e) {
 	header("HTTP/1.1 500 ".$e->getMessage());
 	print $e->getMessage();
 	
-	file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage());
+	file_put_contents(__DIR__.'/log_error'.time().'.txt', $e->getMessage()."\n\n\n".$source);
 	
 }
