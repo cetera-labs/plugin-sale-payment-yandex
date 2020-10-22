@@ -94,6 +94,9 @@ try {
         $order->setPaid(\Sale\Order::PAY_REFUND)->save();
         
     }
+    elseif ($requestBody['event'] === NotificationEventType::PAYMENT_CANCELED) {
+        file_put_contents(__DIR__.'/log_cancel_source'.time().'.txt', $source);
+    }
     else {
         throw new \Exception('Event not permitted');
     }  
