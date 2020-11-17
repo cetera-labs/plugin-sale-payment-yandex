@@ -82,11 +82,38 @@ try {
         if ($gateway->params['orderBundle'] && $gateway->params['receiptAfterPayment']) {
             
             $client = new \SalePaymentYandex\Client();
-            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);        
-                        
+            $client->setAuth($gateway->params['shopId'], $gateway->params['shopSecret']);  
+
             $receipt = $gateway->getReciept();
             $receipt['refund_id'] = $refund->id;
-            $receipt['type'] = 'refund';
+            $receipt['type'] = 'refund';  
+            
+                        
+            if ($refund->getAmount()->getValue() != $order->getTotal()) {
+                // Частичный возврат. Формируем чек на сумму возврата.
+                $receipt['settlements'] = [
+                    [
+                        'type' => 'cashless',
+                        'amount' => [
+                            'value' => $refund->getAmount()->getValue(),
+                            'currency' => $refund->getAmount()->getCurrency(),
+                        ]
+                    ]		   
+                ];  
+                $receipt['items'] = [
+                    [
+                        'description' => 'Частичный возврат',
+                        'quantity'    => 1,
+                        "amount" => [
+                            'value' => $refund->getAmount()->getValue(),
+                            'currency' => $refund->getAmount()->getCurrency(),
+                        ],   
+                        "vat_code" => $gateway->params['vat_code'],
+                        "payment_subject" => $gateway->params['paymentSubjectType'],
+                        "payment_mode" => $gateway->params['paymentMethodType'],
+                    ]               
+                ];
+            }
             
             $resp = $client->createReceiptNew(
                 $receipt,
