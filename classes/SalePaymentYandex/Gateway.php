@@ -120,6 +120,12 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public function pay( $return = '' )
 	{
+        $this->saveTransaction($response->id, $response);
+        header('Location: '.$this->getPayUrl( $return ));
+        die();          
+	}
+
+    public function getPayUrl( $return = '' ) {
         $paymentData = $this->getPaymentData( $return );
         
         $client = new Client();
@@ -130,18 +136,13 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         );
         
         if(isset($response->status) and ($response->status != "canceled") and isset($response->confirmation->confirmation_url) and $response->confirmation->confirmation_url) {
-          
             $this->saveTransaction($response->id, $response);
-            header('Location: '.$response->confirmation->confirmation_url);
-            die();          
-          
+            return $response->confirmation->confirmation_url);         
         }  
         else {
             throw new \Exception('Что-то пошло не так');
-        }
-        
-        
-	}	
+        }        
+    }
 	
 	public function getPaymentData( $return = '' )
 	{
