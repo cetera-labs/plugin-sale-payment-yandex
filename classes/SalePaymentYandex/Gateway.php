@@ -137,7 +137,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
         
         if(isset($response->status) and ($response->status != "canceled") and isset($response->confirmation->confirmation_url) and $response->confirmation->confirmation_url) {
             $this->saveTransaction($response->id, $response);
-            return $response->confirmation->confirmation_url);         
+            return $response->confirmation->confirmation_url;         
         }  
         else {
             throw new \Exception('Что-то пошло не так');
