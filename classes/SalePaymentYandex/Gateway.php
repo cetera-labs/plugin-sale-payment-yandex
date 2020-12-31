@@ -120,7 +120,6 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 	
 	public function pay( $return = '' )
 	{
-        $this->saveTransaction($response->id, $response);
         header('Location: '.$this->getPayUrl( $return ));
         die();          
 	}
