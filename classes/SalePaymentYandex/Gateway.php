@@ -10,7 +10,7 @@ class Gateway extends \Sale\PaymentGateway\GatewayAbstract {
 		$t = \Cetera\Application::getInstance()->getTranslator();
 		
 		return [
-			'name'        => 'Yandex',
+			'name'        => 'Ю-Касса',
 			'description' => '',
 			'icon'        => '/plugins/sale-payment-yandex/images/yandex.png',
 			'params' => [	

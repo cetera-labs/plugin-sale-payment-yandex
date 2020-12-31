@@ -1,6 +1,6 @@
 {
     "name": "cetera-labs/plugin-sale-payment-yandex",
-    "description": "Yandex.Kassa for E-Commerce Plugin",
+    "description": "YooKassa (ex Yandex.Kassa) for E-Commerce Plugin",
     "type": "cetera-cms-plugin",
     "license": "MIT",
     "authors": [
@@ -25,7 +25,7 @@
 
     "extra": {
         "name": "sale-payment-yandex",
-        "title": "Yandex.Kassa for E-Commerce",
+        "title": "YooKassa (ex Yandex.Kassa) for E-Commerce",
         "description": ""
     }
 }
