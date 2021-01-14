@@ -20,14 +20,14 @@ if ($this->getBo()) {
     $this->getBo()->addEditor(array(
         'id'    => EDITOR_TEXT_YANDEX_TAX_SYSTEM,
         'alias' => 'editor_text_yandex_tax_system',
-        'name'  => $t->_('Редактор СНО')
+        'name'  => $t->_('Редактор Yoo СНО')
     ));
 
     $this->getBo()->addPseudoField(array(
         'id'       => PSEUDO_FIELD_YANDEX_TAX_SYSTEM,
         'original' => FIELD_TEXT,
         'len'      => 1,
-        'name'     => $t->_('Yandex СНО')
+        'name'     => $t->_('Yoo СНО')
     ));
 
     $this->getBo()->addFieldEditor(PSEUDO_FIELD_YANDEX_TAX_SYSTEM, EDITOR_TEXT_YANDEX_TAX_SYSTEM);
@@ -35,14 +35,14 @@ if ($this->getBo()) {
     $this->getBo()->addEditor(array(
         'id'    => EDITOR_TEXT_YANDEX_TAX,
         'alias' => 'editor_text_yandex_tax',
-        'name'  => $t->_('Редактор НДС')
+        'name'  => $t->_('Редактор Yoo НДС')
     ));
 
     $this->getBo()->addPseudoField(array(
         'id'       => PSEUDO_FIELD_YANDEX_TAX,
         'original' => FIELD_TEXT,
         'len'      => 1,
-        'name'     => $t->_('Yandex VAT')
+        'name'     => $t->_('Yoo VAT')
     ));
 
     $this->getBo()->addFieldEditor(PSEUDO_FIELD_YANDEX_TAX, EDITOR_TEXT_YANDEX_TAX);	
